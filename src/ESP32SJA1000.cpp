@@ -3,7 +3,7 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "esp_intr.h"
+#include "esp_intr_alloc.h"
 #include "soc/dport_reg.h"
 #include "driver/gpio.h"
 
@@ -304,14 +304,38 @@ int ESP32SJA1000Class::filterExtended(long id, long mask)
   writeRegister(REG_ACRn(0), id >> 21);
   writeRegister(REG_ACRn(1), id >> 13);
   writeRegister(REG_ACRn(2), id >> 5);
-  writeRegister(REG_ACRn(3), id << 3);
+  writeRegister(REG_ACRn(3), id << 5);
 
   writeRegister(REG_AMRn(0), mask >> 21);
   writeRegister(REG_AMRn(1), mask >> 13);
   writeRegister(REG_AMRn(2), mask >> 5);
-  writeRegister(REG_AMRn(3), (mask << 3) | 0x1f);
+  writeRegister(REG_AMRn(3), (mask << 5) | 0x1f);
 
   modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+
+int ESP32SJA1000Class::filters(int id1, int mask1, int id2, int mask2)
+{
+  id1 &= 0x7ff;
+  mask1 = ~(mask1 & 0x7ff);
+  id2 &= 0x7ff;
+  mask2 = ~(mask2 & 0x7ff);
+
+  modifyRegister(REG_MOD, 0x1f, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id1 >> 3);
+  writeRegister(REG_ACRn(1), id1 << 5);
+  writeRegister(REG_ACRn(2), id2 >> 3);
+  writeRegister(REG_ACRn(3), id2 << 5);
+
+  writeRegister(REG_AMRn(0), mask1 >> 3);
+  writeRegister(REG_AMRn(1), (mask1 << 5) | 0x1f);
+  writeRegister(REG_AMRn(2), mask2 >> 3);         
+  writeRegister(REG_AMRn(3), (mask2 << 5) | 0x1f);
+
+  modifyRegister(REG_MOD, 0x1f, 0x00); // normal
 
   return 1;
 }
