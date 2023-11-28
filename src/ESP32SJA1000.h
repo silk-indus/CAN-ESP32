@@ -31,6 +31,9 @@ public:
   using CANControllerClass::filterExtended;
   virtual int filterExtended(long id, long mask);
 
+  using CANControllerClass::filters;
+  virtual int filters(int id1, int mask1, int id2, int mask2);
+
   virtual int observe();
   virtual int loopback();
   virtual int sleep();
