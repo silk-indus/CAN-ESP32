@@ -39,6 +39,8 @@ public:
   virtual int filterExtended(long id) { return filterExtended(id, 0x1fffffff); }
   virtual int filterExtended(long id, long mask);
 
+  virtual int filters(int id1, int mask1, int id2, int mask2);
+  
   virtual int observe();
   virtual int loopback();
   virtual int sleep();
